@@ -19,8 +19,8 @@ function initMap() {
     // Configurar autocompletado para los inputs
     const fromInput = document.getElementById('from');
     const toInput = document.getElementById('to');
-    const fromAutocomplete = new google.maps.places.Autocomplete(fromInput);
-    const toAutocomplete = new google.maps.places.Autocomplete(toInput);
+    new google.maps.places.Autocomplete(fromInput);
+    new google.maps.places.Autocomplete(toInput);
 }
 
 // Mostrar el formulario de conductores
@@ -29,47 +29,59 @@ function showConductores() {
     document.getElementById('location-form').style.display = 'flex';
     document.getElementById('air-quality-info').style.display = 'none';
 
-    if (heatmap) heatmap.setMap(null);
+    document.getElementById('btn-conductores').style.display = 'none';
+    document.getElementById('btn-deportistas').style.display = 'none';
+    document.getElementById('btn-inicio').style.display = 'block'; // Mostrar el botón "Inicio"
+
+    if (heatmap) heatmap.setMap(null); // Limpiar el mapa de calor
     directionsRenderer.setMap(map);
     trafficLayer.setMap(map);
 }
 
-// Mostrar el mapa de calor para deportistas con clima
+// Mostrar el mapa de calor para deportistas
 function showDeportistas() {
     currentMode = 'deportistas';
     document.getElementById('location-form').style.display = 'none';
     document.getElementById('air-quality-info').style.display = 'block';
 
+    document.getElementById('btn-conductores').style.display = 'none';
+    document.getElementById('btn-deportistas').style.display = 'none';
+    document.getElementById('btn-inicio').style.display = 'block'; // Mostrar el botón "Inicio"
+
     directionsRenderer.setMap(null);
     trafficLayer.setMap(null);
 
-    // Crear datos simulados para el mapa de calor del clima
-    const weatherData = [
-        { location: new google.maps.LatLng(-33.4489, -70.6693), weight: 30 }, // Temperatura en °C
-        { location: new google.maps.LatLng(-33.456, -70.65), weight: 25 },
-        { location: new google.maps.LatLng(-33.44, -70.68), weight: 35 },
-        { location: new google.maps.LatLng(-33.42, -70.66), weight: 20 },
+    // Crear un mapa de calor
+    const heatMapData = [
+        { location: new google.maps.LatLng(-33.4489, -70.6693), weight: 1 },
+        { location: new google.maps.LatLng(-33.456, -70.65), weight: 0.8 },
+        { location: new google.maps.LatLng(-33.44, -70.68), weight: 0.6 },
     ];
 
-    // Configurar el mapa de calor para clima
     heatmap = new google.maps.visualization.HeatmapLayer({
-        data: weatherData.map((point) =>
-            Object.assign(point, { weight: point.weight / 50 }) // Normalizar peso
-        ),
+        data: heatMapData,
         map: map,
         radius: 50,
-        gradient: [
-            'rgba(0, 255, 0, 0)',    // Verde claro (bueno)
-            'rgba(0, 255, 0, 1)',    // Verde
-            'rgba(255, 255, 0, 1)',  // Amarillo
-            'rgba(255, 165, 0, 1)',  // Naranja
-            'rgba(255, 0, 0, 1)'     // Rojo (malo)
-        ],
     });
 }
 
+// Regresar a la vista inicial
+function backToStart() {
+    document.getElementById('btn-conductores').style.display = 'block';
+    document.getElementById('btn-deportistas').style.display = 'block';
+    document.getElementById('btn-inicio').style.display = 'none'; // Ocultar el botón "Inicio"
+
+    document.getElementById('location-form').style.display = 'none';
+    document.getElementById('air-quality-info').style.display = 'none';
+
+    if (heatmap) heatmap.setMap(null);
+    directionsRenderer.setMap(null);
+    trafficLayer.setMap(null);
+}
+
 // Buscar y mostrar rutas para conductores
-function calculateAndDisplayRoute() {
+function calculateAndDisplayRoute(event) {
+    event.preventDefault(); // Evitar el envío del formulario
     const from = document.getElementById('from').value;
     const to = document.getElementById('to').value;
 
@@ -96,38 +108,31 @@ function calculateAndDisplayRoute() {
     }
 }
 
-// Cambiar a una ruta alternativa
+// Cambiar entre rutas alternativas
 function changeRoute() {
-    const response = directionsRenderer.getDirections();
-    if (response && response.routes.length > 1) {
-        currentRouteIndex = (currentRouteIndex + 1) % response.routes.length; // Cambiar al siguiente índice
-        directionsRenderer.setRouteIndex(currentRouteIndex); // Mostrar la ruta alternativa
-    } else {
-        alert('No hay rutas alternativas disponibles.');
+    const directions = directionsRenderer.getDirections();
+    if (directions) {
+        currentRouteIndex = (currentRouteIndex + 1) % directions.routes.length;
+        directionsRenderer.setRouteIndex(currentRouteIndex);
     }
 }
 
-// Limpiar la ruta actual
+// Limpiar ruta
 function clearRoute() {
-    directionsRenderer.set('directions', null);
-    document.getElementById('change-route').style.display = 'none'; // Ocultar botón de cambio de ruta
+    directionsRenderer.setDirections({ routes: [] });
+    document.getElementById('from').value = '';
+    document.getElementById('to').value = '';
+    document.getElementById('change-route').style.display = 'none';
 }
 
-// Manejar eventos de botones
+// Inicialización y eventos
+window.onload = function () {
+    initMap();
+};
+
 document.getElementById('btn-conductores').addEventListener('click', showConductores);
 document.getElementById('btn-deportistas').addEventListener('click', showDeportistas);
-
-// Manejar formulario de rutas
-document.getElementById('location-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    calculateAndDisplayRoute();
-});
-
-// Manejar cambio de ruta
+document.getElementById('btn-inicio').addEventListener('click', backToStart);
+document.getElementById('location-form').addEventListener('submit', calculateAndDisplayRoute);
 document.getElementById('change-route').addEventListener('click', changeRoute);
-
-// Manejar limpieza de ruta
 document.getElementById('clear-route').addEventListener('click', clearRoute);
-
-// Inicializar el mapa al cargar
-window.onload = initMap;
