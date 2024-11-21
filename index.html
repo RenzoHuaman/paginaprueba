@@ -4,21 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa - Conductores y Deportistas</title>
-    <meta name="description" content="Aplicación para conductores y deportistas en Santiago, Chile, con información sobre rutas y calidad del aire.">
     <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
     <!-- Menú de selección -->
     <div id="menu">
-        <button id="btn-conductores" class="menu-button" aria-label="Mostrar opciones para conductores">Conductores</button>
-        <button id="btn-deportistas" class="menu-button" aria-label="Mostrar mapa para deportistas">Deportistas</button>
+        <button id="btn-conductores" class="menu-button">Conductores</button>
+        <button id="btn-deportistas" class="menu-button">Deportistas</button>
     </div>
 
+    <!-- Botón de inicio (regresar a la vista inicial) -->
+    <div id="btn-inicio" class="menu-button" style="display: none;">Inicio</div>
+
     <!-- Contenedor del mapa -->
-    <div id="map" aria-label="Mapa interactivo de Google"></div>
+    <div id="map"></div>
 
     <!-- Información adicional para calidad del aire -->
-    <div id="air-quality-info" style="display: none;" aria-live="polite">
+    <div id="air-quality-info" style="display: none;">
         <h2>Calidad del Aire</h2>
         <p><strong>PM2.5:</strong> <span id="pm25-value">-</span> µg/m³</p>
         <p><strong>PM10:</strong> <span id="pm10-value">-</span> µg/m³</p>
@@ -27,8 +29,8 @@
 
     <!-- Formulario para buscar rutas (Conductores) -->
     <form id="location-form" style="display: none;">
-        <input id="from" type="text" placeholder="¿Dónde estoy?" required pattern=".{3,}" aria-label="Ubicación de inicio">
-        <input id="to" type="text" placeholder="¿A dónde quiero ir?" required pattern=".{3,}" aria-label="Destino">
+        <input id="from" type="text" placeholder="¿Dónde estoy?" required>
+        <input id="to" type="text" placeholder="¿A dónde quiero ir?" required>
         <button type="submit">Buscar Ruta</button>
         <button type="button" id="clear-route">Limpiar Ruta</button>
     </form>
@@ -37,7 +39,7 @@
     <button id="change-route" style="display: none;">Cambio de Ruta</button>
 
     <!-- Script de Google Maps -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCPduPBYOLSdyJvi1CTHqfk6qqwNKfuKh4&libraries=places,visualization" defer></script>
-    <script src="script.js" defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCPduPBYOLSdyJvi1CTHqfk6qqwNKfuKh4&libraries=places,visualization"></script>
+    <script src="script.js"></script>
 </body>
 </html>
